@@ -12,6 +12,7 @@ public class EmployeeMapper {
     public static EmployeeDto employeeToEmployeeDto(Employee employee) {
 
         return new EmployeeDto(
+                employee.getId(),
                 employee.getFirstName(),
                 employee.getLastName(),
                 employee.getEmail(),
