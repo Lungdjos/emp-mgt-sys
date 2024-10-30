@@ -1,10 +1,11 @@
 import './App.css'
+import ListEmployeeComp from './components/ListEmployeeComp.jsx'
 
 function App() {
 
   return (
     <>
-      <---!TODO: Add your code here!--->
+      <ListEmployeeComp />
     </>
   )
 }
