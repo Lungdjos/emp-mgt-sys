@@ -37,24 +37,22 @@ const ListEmployeeComp = () => {
                     </tr>
                   </thead>
                   <tbody>
-                      {
-                          employees.map(
-                              employee =>
-                                  <tr>
-                                      <th scope="row">{employee.id}</th>
-                                      <td>{employee.firstName}</td>
-                                      <td>{employee.lastName}</td>
-                                      <td>{employee.email}</td>
-                                      <td>{employee.mobile}</td>
-                                      <td>{employee.gender}</td>
-                                      <td>{employee.department}</td>
-                                      <td>{employee.designation}</td>
-                                      <td>
-                                          <button className="btn btn-primary">Edit</button>
-                                          <button className="btn btn-danger">Delete</button>
-                                      </td>
-                                  </tr>
-                          )}
+                      {employees.map(employee => (
+                          <tr key={employee.id}>
+                              <th scope="row">{employee.id}</th>
+                              <td>{employee.firstName}</td>
+                              <td>{employee.lastName}</td>
+                              <td>{employee.email}</td>
+                              <td>{employee.mobile}</td>
+                              <td>{employee.gender}</td>
+                              <td>{employee.department}</td>
+                              <td>{employee.designation}</td>
+                              <td>
+                                  <button className="btn btn-primary">Edit</button>
+                                  <button className="btn btn-danger">Delete</button>
+                              </td>
+                          </tr>
+                      ))}
                   </tbody>
                 </table>
               </div>
