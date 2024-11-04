@@ -1,7 +1,10 @@
 package com.radix.ems.controller;
 
 import com.radix.ems.dto.EmployeeDto;
+import com.radix.ems.model.Employee;
 import com.radix.ems.service.EmployeeService;
+import com.radix.ems.utilities.ApiResponse;
+import com.radix.ems.utilities.ResponseUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,65 +26,64 @@ public class EmployeeRestCtrl {
      * @return
      */
     @PostMapping
-    public ResponseEntity<EmployeeDto> createEmployee(@RequestBody EmployeeDto employeeDto) {
-        try {
-            return  new ResponseEntity<>(employeeService.createEmployee(employeeDto), HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<ApiResponse<EmployeeDto>> createEmployee(@RequestBody EmployeeDto employeeDto) {
+        // Call the service method to create the employee
+        EmployeeDto employee = employeeService.createEmployee(employeeDto);
+
+        // Wrap the result in ApiResponse
+        ApiResponse<EmployeeDto> apiResponse = ResponseUtil.success(employee, "Employee created successfully", "/api/v1/employees");
+
+        return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
     }
 
+
     /**
-     * controller method to get employee by id
+     * Controller method to get employee by ID
      * @param id
      * @return
      */
     @GetMapping("{id}")
-    public ResponseEntity<EmployeeDto> getEmployee(@PathVariable("id") Long id) {
-        try {
-            return  new ResponseEntity<>(employeeService.getEmployeeById(id), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<ApiResponse<EmployeeDto>> getEmployee(@PathVariable("id") Long id) {
+        EmployeeDto employee = employeeService.getEmployeeById(id);
+        ApiResponse<EmployeeDto> apiResponse = ResponseUtil.success(employee, "Employee retrieved successfully", null);
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
     /**
-     * controller method to get all employees
+     * Controller method to get all employees
      * @return
      */
     @GetMapping
-    public ResponseEntity<List<EmployeeDto>> getAllEmployees() {
-        try {
-            return  new ResponseEntity<>(employeeService.getAllEmployees(), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<ApiResponse<List<EmployeeDto>>> getAllEmployees() {
+        List<EmployeeDto> employees = employeeService.getAllEmployees();
+        ApiResponse<List<EmployeeDto>> apiResponse = ResponseUtil.success(employees, "Employees retrieved successfully", null);
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
     /**
-     * controller method to update employee
+     * Controller method to update employee
      * @param id
      * @param employeeDto
      * @return
      */
     @PutMapping("{id}")
-    public ResponseEntity<EmployeeDto> updateEmployee(@PathVariable("id") Long id,
-                                                      @RequestBody EmployeeDto employeeDto) {
-        try {
-            return  new ResponseEntity<>(employeeService.updateEmployee(id, employeeDto), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<ApiResponse<EmployeeDto>> updateEmployee(@PathVariable("id") Long id,
+                                                                   @RequestBody EmployeeDto employeeDto) {
+        EmployeeDto updatedEmployee = employeeService.updateEmployee(id, employeeDto);
+        ApiResponse<EmployeeDto> apiResponse = ResponseUtil.success(updatedEmployee, "Employee updated successfully", null);
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
 
     /**
-     * controller method to delete employee
+     * Controller method to delete employee
      * @param id
      * @return
      */
     @DeleteMapping("{id}")
-    public ResponseEntity<String> deleteEmployee(@PathVariable("id") Long id) {
+    public ResponseEntity<ApiResponse<String>> deleteEmployee(@PathVariable("id") Long id) {
         employeeService.deleteEmployee(id);
-        return new ResponseEntity<>("Employee deleted successfully!", HttpStatus.OK);
+        ApiResponse<String> apiResponse = ResponseUtil.success("Employee deleted successfully!", "Employee deleted successfully", null);
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }
+
 }
