@@ -2,7 +2,7 @@ package com.radix.ems.controller;
 
 import com.radix.ems.dto.EmployeeDto;
 import com.radix.ems.service.EmployeeService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,9 +12,10 @@ import java.util.List;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("/api/v1/employees")
+@AllArgsConstructor
 public class EmployeeRestCtrl {
-    @Autowired
-    private EmployeeService employeeService;
+
+    private final EmployeeService employeeService;
 
     /**
      * controller method to create employee

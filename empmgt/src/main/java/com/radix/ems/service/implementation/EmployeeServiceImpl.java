@@ -7,87 +7,116 @@ import com.radix.ems.mapper.EmployeeMapper;
 import com.radix.ems.model.Employee;
 import com.radix.ems.repos.EmployeeRepository;
 import com.radix.ems.service.EmployeeService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Log4j2
 @Service
+@AllArgsConstructor
 public class EmployeeServiceImpl implements EmployeeService {
 
-    @Autowired
-    private EmployeeRepository employeeRepository;
+    private final EmployeeRepository employeeRepository;
 
     /**
-     * method to create employee
-     * @param employeeDto
-     * @return
+     * Method to create a new employee.
+     * Checks if an employee with the given email already exists.
+     * If not, saves the new employee and returns the created EmployeeDto.
+     *
+     * @param employeeDto The data transfer object containing employee details.
+     * @return The created EmployeeDto.
      */
     @Override
     public EmployeeDto createEmployee(EmployeeDto employeeDto) {
-        // validation on the new eployee
+        log.info("Attempting to create employee with email: {}", employeeDto.getEmail());
+
         var emp = employeeRepository.findByEmail(employeeDto.getEmail());
         if (emp == null) {
             var emp1 = employeeRepository.save(EmployeeMapper.employeeDtoToEmployee(employeeDto));
+            log.info("Employee created successfully with email: {}", emp1.getEmail());
             return EmployeeMapper.employeeToEmployeeDto(emp1);
         } else {
-           throw new ResourceAlreadyExistException("Employee already exists with email " + employeeDto.getEmail());
+            log.error("Employee already exists with email: {}", employeeDto.getEmail());
+            throw new ResourceAlreadyExistException("Employee already exists with email " + employeeDto.getEmail());
         }
     }
 
     /**
-     * method to get employee by id
-     * @param id
-     * @return
+     * Method to retrieve an employee by their ID.
+     *
+     * @param id The ID of the employee to retrieve.
+     * @return The EmployeeDto corresponding to the provided ID.
      */
     @Override
     public EmployeeDto getEmployeeById(Long id) {
+        log.info("Retrieving employee with id: {}", id);
+
         var emp = employeeRepository.findById(id);
         if (emp.isPresent()) {
+            log.info("Employee found with id: {}", id);
             return EmployeeMapper.employeeToEmployeeDto(emp.get());
-        }else {
+        } else {
+            log.error("Employee not found with id: {}", id);
             throw new ResourceNotFoundException("Employee not found with id " + id);
         }
     }
 
     /**
-     * method to get all employees
-     * @return
+     * Method to retrieve all employees.
+     *
+     * @return A list of EmployeeDto for all employees.
      */
     @Override
     public List<EmployeeDto> getAllEmployees() {
+        log.info("Retrieving all employees");
+
         List<EmployeeDto> employeesDto = employeeRepository.findAll()
                 .stream().map(EmployeeMapper::employeeToEmployeeDto).toList();
         if (!employeesDto.isEmpty()) {
+            log.info("Total employees found: {}", employeesDto.size());
             return employeesDto;
-        }else {
+        } else {
+            log.warn("No employees found");
             throw new ResourceNotFoundException("No employees found");
         }
     }
 
     /**
-     * method to delete employee
-     * @param id
+     * Method to delete an employee by their ID.
+     *
+     * @param id The ID of the employee to delete.
      */
     @Override
     public void deleteEmployee(Long id) {
+        log.info("Attempting to delete employee with id: {}", id);
+
         var emp = employeeRepository.findById(id);
         if (emp.isPresent()) {
             employeeRepository.delete(emp.get());
-        }else {
+            log.info("Employee deleted successfully with id: {}", id);
+        } else {
+            log.error("Employee not found with id : {}", id);
             throw new ResourceNotFoundException("Employee not found with id " + id);
         }
     }
 
     /**
-     *  method to update employee details
-     * @param id
-     * @param employeeDto
-     * @return
+     * Method to update employee details.
+     *
+     * @param id The ID of the employee to update.
+     * @param employeeDto The data transfer object containing updated employee details.
+     * @return The updated EmployeeDto.
      */
     @Override
     public EmployeeDto updateEmployee(Long id, EmployeeDto employeeDto) {
-        Employee emp = employeeRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Employee not found with id " + id));
+        log.info("Updating employee with id: {}", id);
+
+        Employee emp = employeeRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id " + id));
+
+        // Update employee fields with new values
         emp.setFirstName(employeeDto.getFirstName());
         emp.setLastName(employeeDto.getLastName());
         emp.setEmail(employeeDto.getEmail());
@@ -96,6 +125,10 @@ public class EmployeeServiceImpl implements EmployeeService {
         emp.setDepartment(employeeDto.getDepartment());
         emp.setDesignation(employeeDto.getDesignation());
 
-        return EmployeeMapper.employeeToEmployeeDto(employeeRepository.save(emp));
+        EmployeeDto updatedEmployeeDto = EmployeeMapper.employeeToEmployeeDto(employeeRepository.save(emp));
+        log.info("Employee updated successfully with id: {}", id);
+
+        return updatedEmployeeDto;
     }
 }
+
