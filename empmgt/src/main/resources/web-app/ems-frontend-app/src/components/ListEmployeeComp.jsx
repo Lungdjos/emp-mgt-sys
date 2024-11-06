@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import EditEmployeeComp from './EditEmployeeComp'; // Import your modal component
 
 const ListEmployeeComp = () => {
     const [employees, setListEmployee] = useState([]);
+    const [selectedEmployee, setSelectedEmployee] = useState(null); // State for selected employee
+    const [showModal, setShowModal] = useState(false); // State to control modal visibility
     const navigate = useNavigate();
 
-    // Method to get all employees
     const getAllEmployees = () => {
         return axios.get("http://localhost:8080/api/v1/employees");
     };
@@ -14,27 +16,31 @@ const ListEmployeeComp = () => {
     useEffect(() => {
         getAllEmployees()
             .then((response) => {
-                // Adjust based on your ApiResponse structure
-                setListEmployee(response.data.data); // Access the correct property here
+                setListEmployee(response.data.data);
             })
             .catch((error) => {
                 console.log(error);
-                setListEmployee([]); // Clear employee list on error
+                setListEmployee([]);
             });
     }, []);
 
-    // Method to add employee
-    const addEmployee = () => {
-        navigate("/add-employee");
+    const openEditModal = (employee) => {
+        setSelectedEmployee(employee); // Set selected employee data
+        setShowModal(true); // Open the modal
+    };
+
+    const closeModal = () => {
+        setShowModal(false);
+        setSelectedEmployee(null); // Clear selected employee data
     };
 
     return (
         <>
             <div className="container">
                 <h2 className="text-center">List of Employees</h2>
-                <div className="r-grid gap-1">
-                    <button className="btn btn-primary btn-lg" type="button" onClick={addEmployee}>Add New Employee</button>
-                </div>
+                <button className="btn btn-primary btn-lg" type="button" onClick={() => navigate("/add-employee")}>
+                    Add New Employee
+                </button>
                 <table className="table table-striped table-sm">
                     <thead>
                         <tr>
@@ -62,8 +68,8 @@ const ListEmployeeComp = () => {
                                     <td>{employee.department}</td>
                                     <td>{employee.designation}</td>
                                     <td>
-                                        <button className="btn btn-primary me-2">Edit</button>
-                                        <button className="btn btn-danger"><i className="bi bi-trash"></i>Delete</button>
+                                        <button className="btn btn-primary me-2" onClick={() => openEditModal(employee)}>Edit</button>
+                                        <button className="btn btn-danger">Delete</button>
                                     </td>
                                 </tr>
                             ))
@@ -74,6 +80,14 @@ const ListEmployeeComp = () => {
                         )}
                     </tbody>
                 </table>
+
+                {showModal && (
+                    <EditEmployeeComp
+                        employee={selectedEmployee}
+                        onClose={closeModal}
+                        onRefresh={getAllEmployees} // Pass refresh function
+                    />
+                )}
             </div>
         </>
     );
